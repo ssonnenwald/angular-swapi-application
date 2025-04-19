@@ -1,21 +1,109 @@
 <mat-toolbar>
   <mat-toolbar-row>
-    <div class="d-flex align-items-center h-100">
-      <div class="me-2">
-        <img
-          priority
-          ngSrc="images/icon_angular_gradient.png"
-          alt="Angular Logo"
-          class="optimized-image"
-          width="48"
-          height="48"
-        />
-      </div>
-      <div>Angular - Content Projection</div>
+    @if (isMobile()) {
+    <button mat-icon-button (click)="toggleSideNav()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    }
+
+    <div class="me-2">
+      <img
+        priority
+        ngSrc="images/icon_angular_gradient.png"
+        alt="Angular Logo"
+        class="optimized-image logo"
+        width="48"
+        height="48"
+        (click)="navigateToHome()"
+      />
     </div>
+    <div>Angular - Swapi</div>
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div class="content">
-  <router-outlet />
-</div>
+<mat-sidenav-container>
+  <!-- Sidenav (side menu) -->
+  <mat-sidenav #sidenav mode="side" opened="true">
+    <mat-nav-list>
+      <a
+        mat-list-item
+        [routerLink]="['/films']"
+        routerLinkActive="router-link-active"
+      >
+        <mat-icon
+          matListItemIcon
+          svgIcon="sw_film"
+          class="icon-lightgray"
+        ></mat-icon>
+        <div matListItemTitle>Films</div></a
+      >
+      <a
+        mat-list-item
+        [routerLink]="['/people']"
+        routerLinkActive="router-link-active"
+      >
+        <mat-icon
+          matListItemIcon
+          svgIcon="sw_people"
+          class="icon-lightgray"
+        ></mat-icon>
+        <div matListItemTitle>People</div>
+      </a>
+      <a
+        mat-list-item
+        [routerLink]="['/planets']"
+        routerLinkActive="router-link-active"
+      >
+        <mat-icon
+          matListItemIcon
+          svgIcon="sw_planet"
+          class="icon-lightgray"
+        ></mat-icon>
+        <div matListItemTitle>Planets</div></a
+      >
+      <a
+        mat-list-item
+        [routerLink]="['/species']"
+        routerLinkActive="router-link-active"
+      >
+        <mat-icon
+          matListItemIcon
+          svgIcon="sw_species"
+          class="icon-lightgray"
+        ></mat-icon>
+        <div matListItemTitle>Species</div></a
+      >
+      <a
+        mat-list-item
+        [routerLink]="['/starships']"
+        routerLinkActive="router-link-active"
+      >
+        <mat-icon
+          matListItemIcon
+          svgIcon="sw_starship"
+          class="icon-lightgray"
+        ></mat-icon>
+        <div matListItemTitle>Starships</div></a
+      >
+      <a
+        mat-list-item
+        [routerLink]="['/vehicles']"
+        routerLinkActive="router-link-active"
+      >
+        <mat-icon
+          matListItemIcon
+          svgIcon="sw_vehicle"
+          class="icon-lightgray"
+        ></mat-icon>
+        <div matListItemTitle>Vehicles</div></a
+      >
+    </mat-nav-list></mat-sidenav
+  >
+
+  <!-- Main Content Area -->
+  <mat-sidenav-content>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

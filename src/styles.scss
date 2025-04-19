@@ -1,4 +1,46 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@use "@angular/material" as mat;
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: mat.$azure-palette,
+      ),
+      density: (
+        scale: 0,
+      ),
+      typography: Roboto,
+    ),
+    $overrides: ("background": #212121)
+  );
+}
+
+:root {
+  @include mat.tooltip-overrides(
+    (
+      container-color: black,
+      supporting-text-color: white,
+      supporting-text-size: 1rem,
+    )
+  );
+}
+
+html,
+body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-grid-tile-content {
+  flex-direction: column;
+}

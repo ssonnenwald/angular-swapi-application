@@ -1,3 +1,20 @@
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.sidenav-overrides(
+    (
+      container-shape: 0 0 0 0,
+      content-text-color: #ffffff,
+      container-background-color: #323232,
+      container-width: 165px,
+    )
+  );
+
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
 mat-toolbar {
   position: sticky;
   top: 0;
@@ -8,13 +25,26 @@ mat-toolbar {
   .mat-toolbar-row,
   .mat-toolbar-single-row {
     padding: 0 8px;
+    height: 64px;
+  }
+
+  .logo {
+    cursor: pointer;
   }
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  padding: 32px;
-  max-height: calc(100vh - 64px);
+mat-sidenav-container {
+  height: calc(100vh - 64px);
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    padding: 32px;
+    max-height: calc(100vh - 64px);
+  }
+}
+
+.icon-lightgray {
+  color: lightgray !important;
 }

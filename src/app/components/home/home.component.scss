@@ -1,0 +1,16 @@
+mat-grid-tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: rgb(202, 152, 60);
+  border-radius: 16px;
+
+  mat-grid-tile-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: blueviolet;
+    margin-top: auto; /* Pushes the footer to the bottom */
+  }
+}
