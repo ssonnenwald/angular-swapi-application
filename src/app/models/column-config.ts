@@ -72,7 +72,7 @@ export const SwapiColumnConfigs: Record<string, ColumnConfig[]> = {
   ],
   species: [
     { columnDef: 'id', header: 'Id', cell: (row) => row.id },
-    { columnDef: 'name', header: 'Title', cell: (row) => row.name },
+    { columnDef: 'name', header: 'Name', cell: (row) => row.name },
     {
       columnDef: 'classification',
       header: 'Classification',

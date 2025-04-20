@@ -7,7 +7,8 @@ import {
 
 @Component({
   selector: 'app-home',
-  imports: [MatGridList, MatGridTile, MatGridTileText],
+  // imports: [MatGridList, MatGridTile, MatGridTileText],
+  imports: [],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })

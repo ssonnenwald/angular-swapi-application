@@ -1,11 +1,15 @@
 import {
+  AfterViewInit,
   Component,
+  effect,
   inject,
   OnInit,
+  Signal,
   signal,
+  viewChild,
   WritableSignal,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SwapiService } from '../../services/swapi/swapi.service';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import {
@@ -20,22 +24,24 @@ import {
   MatRow,
   MatRowDef,
   MatTable,
+  MatTableDataSource,
 } from '@angular/material/table';
 import { FormsModule } from '@angular/forms';
 import { MatInput } from '@angular/material/input';
-import { MatButton } from '@angular/material/button';
 import { TitleCasePipe } from '@angular/common';
 import { ColumnConfig, SwapiColumnConfigs } from '../../models/column-config';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
 
 @Component({
   selector: 'app-search',
   imports: [
-    MatButton,
     MatFormField,
     MatLabel,
     MatTable,
     MatHeaderCell,
     MatHeaderCellDef,
+    MatSortHeader,
     MatCell,
     MatCellDef,
     MatHeaderRow,
@@ -47,18 +53,25 @@ import { ColumnConfig, SwapiColumnConfigs } from '../../models/column-config';
     MatInput,
     FormsModule,
     TitleCasePipe,
+    MatPaginator,
+    MatSort,
+    RouterLink,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent implements OnInit, AfterViewInit {
+  private paginator: Signal<MatPaginator | undefined> = viewChild<
+    MatPaginator | undefined
+  >(MatPaginator);
+  private sort: Signal<MatSort | undefined> = viewChild<MatSort | undefined>(
+    MatSort
+  );
   private route: ActivatedRoute = inject(ActivatedRoute);
-  private swapi: SwapiService = inject(SwapiService);
+  public swapi: SwapiService = inject(SwapiService);
 
-  private regexIdUrl = new RegExp('[^/]+(?=/$|$)');
-  public resource: WritableSignal<string> = signal('people');
-  public searchTerm: WritableSignal<string> = signal('');
-  public data: WritableSignal<any[]> = signal<any[]>([]);
+  public dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+
   public displayedColumns: WritableSignal<string[]> = signal<string[]>([]);
   public columnDefs: WritableSignal<ColumnConfig[]> = signal<ColumnConfig[]>(
     []
@@ -73,40 +86,30 @@ export class SearchComponent implements OnInit {
     'vehicles',
   ];
 
+  public constructor() {
+    effect(() => {
+      this.dataSource.data = this.swapi.search.value()?.results ?? [];
+    });
+  }
+
   public ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const res = params.get('resource');
 
       if (res && this.resources.includes(res)) {
-        this.resource.set(res);
+        this.swapi.resource.set(res);
 
         // Load column config for the selected resource
         this.columnDefs.set(SwapiColumnConfigs[res]);
         this.displayedColumns.set(this.columnDefs().map((c) => c.columnDef));
 
-        this.searchTerm.set('');
-        this.data.set([]);
-
-        this.onSearch();
+        this.swapi.searchTerm.set('');
       }
     });
   }
 
-  public async onSearch() {
-    const res = (await this.swapi
-      .search(this.resource() as any, this.searchTerm())
-      .toPromise()) || { results: [] };
-
-    const results = res.results;
-
-    // Map the Ids to the corresponding names for the selected resource
-    results.map((item) => (item.id = this.getIdFromUrl(item.url)));
-
-    this.data.set(results);
-  }
-
-  private getIdFromUrl(url: string): string {
-    let id = this.regexIdUrl.exec(url)![0];
-    return id;
+  public ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort()!;
+    this.dataSource.paginator = this.paginator()!;
   }
 }
