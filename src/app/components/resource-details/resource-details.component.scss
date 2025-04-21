@@ -1,0 +1,16 @@
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.tabs-overrides(
+    (
+      active-indicator-color: #e70263,
+      active-hover-indicator-color: #e70263,
+      active-focus-indicator-color: #e70263,
+    )
+  );
+}
+
+.icon-lightgray {
+  color: lightgray;
+  margin-right: 8px;
+}

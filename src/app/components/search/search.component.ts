@@ -32,6 +32,7 @@ import { TitleCasePipe } from '@angular/common';
 import { ColumnConfig, SwapiColumnConfigs } from '../../models/column-config';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-search',
@@ -56,6 +57,7 @@ import { MatSort, MatSortHeader } from '@angular/material/sort';
     MatPaginator,
     MatSort,
     RouterLink,
+    MatProgressSpinner,
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
@@ -69,6 +71,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   );
   private route: ActivatedRoute = inject(ActivatedRoute);
   public swapi: SwapiService = inject(SwapiService);
+  public isLoading: Signal<boolean> = this.swapi.isLoading;
 
   public dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 

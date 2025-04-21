@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, WritableSignal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import {
+  inject,
+  Injectable,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
+import { debounce, debounceTime, delay, Observable, tap } from 'rxjs';
 import { SwapiResponse } from '../../models/swapi-response';
 import {
   SwapiResourceType,
@@ -19,6 +25,8 @@ export class SwapiService {
 
   public resource: WritableSignal<string> = signal('people');
   public searchTerm: WritableSignal<string> = signal('');
+
+  public resourceId: WritableSignal<string> = signal('');
 
   constructor() {}
 
@@ -45,9 +53,41 @@ export class SwapiService {
       .pipe(
         tap((res) =>
           res.results.map((item) => (item.id = this.getIdFromUrl(item.url)))
-        )
+        ),
+        delay(1000)
       );
   }
+
+  public resourceData = rxResource({
+    request: () => ({
+      resource: this.resource(),
+      id: this.resourceId(),
+    }),
+    loader: ({ request }) =>
+      this.typedResourceLoader(
+        request.resource as SwapiResourceType,
+        request.id
+      ),
+  });
+
+  private typedResourceLoader<K extends SwapiResourceType>(
+    resource: K,
+    id: string
+  ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
+    return this.http
+      .get<SwapiResponse<SwapiResourceMap[K]>>(
+        `${this.baseUrl}/${resource}/${id}`
+      )
+      .pipe(
+        tap((res) =>
+          res.results.map((item) => (item.id = this.getIdFromUrl(item.url)))
+        ),
+        delay(1000)
+      );
+  }
+
+  public isLoading: Signal<boolean> =
+    this.search.isLoading || this.resourceData.isLoading;
 
   private getIdFromUrl(url: string): string {
     let id = this.regexIdUrl.exec(url)![0];

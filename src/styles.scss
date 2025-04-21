@@ -26,6 +26,12 @@ html {
       supporting-text-size: 1rem,
     )
   );
+
+  @include mat.progress-spinner-overrides(
+    (
+      active-indicator-color: #e70263,
+    )
+  );
 }
 
 html,
