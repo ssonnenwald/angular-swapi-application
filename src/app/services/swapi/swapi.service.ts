@@ -6,13 +6,14 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { debounce, debounceTime, delay, Observable, tap } from 'rxjs';
+import { delay, Observable, of, switchMap, tap } from 'rxjs';
 import { SwapiResponse } from '../../models/swapi-response';
 import {
   SwapiResourceType,
   SwapiResourceMap,
 } from '../../models/swapi-resource-map';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { SortKeyMap } from '../../models/sort-key-map';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class SwapiService {
 
   private regexIdUrl = new RegExp('[^/]+(?=/$|$)');
 
-  public resource: WritableSignal<string> = signal('people');
+  public resource: WritableSignal<string> = signal('');
   public searchTerm: WritableSignal<string> = signal('');
 
   public resourceId: WritableSignal<string> = signal('');
@@ -46,48 +47,72 @@ export class SwapiService {
     resource: K,
     searchTerm: string
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
-    return this.http
-      .get<SwapiResponse<SwapiResourceMap[K]>>(
-        `${this.baseUrl}/${resource}/?search=${searchTerm}`
-      )
-      .pipe(
-        tap((res) =>
-          res.results.map((item) => (item.id = this.getIdFromUrl(item.url)))
-        ),
-        delay(1000)
+    const url = `${this.baseUrl}/${resource}/?search=${searchTerm}`;
+    return this.fetchAllPages(resource, url).pipe(delay(1000));
+  }
+
+  private fetchAllPages<K extends SwapiResourceType>(
+    resource: K,
+    url: string
+  ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
+    const getPage = (
+      url: string
+    ): Observable<SwapiResponse<SwapiResourceMap[K]>> =>
+      this.http.get<SwapiResponse<SwapiResourceMap[K]>>(url);
+
+    const collectPages = (
+      url: string,
+      acc: SwapiResourceMap[K][] = []
+    ): Observable<SwapiResponse<SwapiResourceMap[K]>> => {
+      return getPage(url).pipe(
+        switchMap((response) => {
+          const updatedResults = response.results.map((item) => ({
+            ...item,
+            id: this.getIdFromUrl((item as any).url),
+          }));
+
+          const combined = [...acc, ...updatedResults];
+
+          if (response.next) {
+            return collectPages(response.next, combined);
+          } else {
+            const sortKey = SortKeyMap[resource];
+            if (sortKey) {
+              combined.sort((a, b) =>
+                String((a as any)[sortKey]).localeCompare(
+                  String((b as any)[sortKey])
+                )
+              );
+            }
+
+            return of({
+              ...response,
+              results: combined,
+            });
+          }
+        })
       );
+    };
+
+    return collectPages(url);
   }
 
   public resourceData = rxResource({
     request: () => ({
       resource: this.resource(),
-      id: this.resourceId(),
     }),
     loader: ({ request }) =>
-      this.typedResourceLoader(
-        request.resource as SwapiResourceType,
-        request.id
-      ),
+      this.typedResourceLoader(request.resource as SwapiResourceType),
   });
 
   private typedResourceLoader<K extends SwapiResourceType>(
-    resource: K,
-    id: string
+    resource: K
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
-    return this.http
-      .get<SwapiResponse<SwapiResourceMap[K]>>(
-        `${this.baseUrl}/${resource}/${id}`
-      )
-      .pipe(
-        tap((res) =>
-          res.results.map((item) => (item.id = this.getIdFromUrl(item.url)))
-        ),
-        delay(1000)
-      );
+    const url = `${this.baseUrl}/${resource}/`;
+    return this.fetchAllPages(resource, url);
   }
 
-  public isLoading: Signal<boolean> =
-    this.search.isLoading || this.resourceData.isLoading;
+  public isLoading: Signal<boolean> = this.search.isLoading; //|| this.resourceData.isLoading;
 
   private getIdFromUrl(url: string): string {
     let id = this.regexIdUrl.exec(url)![0];
