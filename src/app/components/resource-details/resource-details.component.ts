@@ -1,9 +1,22 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs';
 import { PropertiesComponent } from '../properties/properties.component';
 import { ResourceDataComponent } from '../resource-data/resource-data.component';
 import { ActivatedRoute } from '@angular/router';
+import { SwapiService } from '../../services/swapi/swapi.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { SwapiResourceType } from '../../models/swapi-resource-map';
 
 @Component({
   selector: 'app-resource-details',
@@ -14,12 +27,16 @@ import { ActivatedRoute } from '@angular/router';
     MatIcon,
     PropertiesComponent,
     ResourceDataComponent,
+    MatProgressSpinner,
   ],
   templateUrl: './resource-details.component.html',
   styleUrl: './resource-details.component.scss',
 })
 export class ResourceDetailsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private route: ActivatedRoute = inject(ActivatedRoute);
+  public swapi: SwapiService = inject(SwapiService);
+  public isLoading: Signal<boolean> = this.swapi.resourceData.isLoading;
 
   public resources: string[] = [
     'people',
@@ -30,12 +47,42 @@ export class ResourceDetailsComponent implements OnInit {
     'vehicles',
   ];
 
-  public constructor() {}
+  public displayFilmsTab: WritableSignal<boolean> = signal(false);
+  public displayPeopleTab: WritableSignal<boolean> = signal(false);
+  public displayPlanetsTab: WritableSignal<boolean> = signal(false);
+  public displaySpeciesTab: WritableSignal<boolean> = signal(false);
+  public displayStarshipsTab: WritableSignal<boolean> = signal(false);
+  public displayVehiclesTab: WritableSignal<boolean> = signal(false);
+
+  public constructor() {
+    effect(() => {
+      const data = this.swapi.resourceData.value();
+      if (data?.results) {
+        this.configureTabs(data.results);
+      }
+    });
+  }
 
   public ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      const resource: string = params.get('resource') || '';
-      const resourceId: string = params.get('id') || '';
-    });
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const resource: string = params.get('resource') || '';
+        const resourceId: string = params.get('id') || '';
+
+        if (resource && resourceId && this.resources.includes(resource)) {
+          this.swapi.resource.set(resource as SwapiResourceType);
+          this.swapi.resourceIds.set([resourceId]);
+        }
+      });
+  }
+
+  private configureTabs(results: any[]): void {
+    this.displayFilmsTab.set('films' in results[0]);
+    this.displayPeopleTab.set('people' in results[0]);
+    this.displayPlanetsTab.set('planets' in results[0]);
+    this.displaySpeciesTab.set('species' in results[0]);
+    this.displayStarshipsTab.set('starships' in results[0]);
+    this.displayVehiclesTab.set('vehicles' in results[0]);
   }
 }

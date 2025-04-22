@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  DestroyRef,
   effect,
   inject,
   OnInit,
@@ -33,6 +34,8 @@ import { ColumnConfig, SwapiColumnConfigs } from '../../models/column-config';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SwapiResourceType } from '../../models/swapi-resource-map';
 
 @Component({
   selector: 'app-search',
@@ -69,9 +72,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   private sort: Signal<MatSort | undefined> = viewChild<MatSort | undefined>(
     MatSort
   );
+  private destroyRef = inject(DestroyRef);
   private route: ActivatedRoute = inject(ActivatedRoute);
   public swapi: SwapiService = inject(SwapiService);
-  public isLoading: Signal<boolean> = this.swapi.isLoading;
+  public isLoading: Signal<boolean> = this.swapi.search.isLoading;
 
   public dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
@@ -96,19 +100,21 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   public ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      const res = params.get('resource');
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const res = params.get('resource') as SwapiResourceType;
 
-      if (res && this.resources.includes(res)) {
-        this.swapi.resource.set(res);
+        if (res && this.resources.includes(res)) {
+          this.swapi.resource.set(res);
 
-        // Load column config for the selected resource
-        this.columnDefs.set(SwapiColumnConfigs[res]);
-        this.displayedColumns.set(this.columnDefs().map((c) => c.columnDef));
+          // Load column config for the selected resource
+          this.columnDefs.set(SwapiColumnConfigs[res]);
+          this.displayedColumns.set(this.columnDefs().map((c) => c.columnDef));
 
-        this.swapi.searchTerm.set('');
-      }
-    });
+          this.swapi.searchTerm.set('');
+        }
+      });
   }
 
   public ngAfterViewInit(): void {

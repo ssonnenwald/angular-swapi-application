@@ -24,7 +24,8 @@ export class SwapiService {
 
   private regexIdUrl = new RegExp('[^/]+(?=/$|$)');
 
-  public resource: WritableSignal<string> = signal('');
+  public resource: WritableSignal<SwapiResourceType> =
+    signal<SwapiResourceType>('people');
   public searchTerm: WritableSignal<string> = signal('');
 
   public resourceIds: WritableSignal<string[]> = signal([]);
@@ -37,10 +38,7 @@ export class SwapiService {
       searchTerm: this.searchTerm(),
     }),
     loader: ({ request }) =>
-      this.typedLoader(
-        request.resource as SwapiResourceType,
-        request.searchTerm
-      ),
+      this.typedLoader(request.resource, request.searchTerm),
   });
 
   private typedLoader<K extends SwapiResourceType>(
@@ -103,10 +101,7 @@ export class SwapiService {
       ids: this.resourceIds(),
     }),
     loader: ({ request }) =>
-      this.typedResourceLoader(
-        request.resource as SwapiResourceType,
-        request.ids
-      ),
+      this.typedResourceLoader(request.resource, request.ids).pipe(delay(1000)),
   });
 
   private typedResourceLoader<K extends SwapiResourceType>(
@@ -135,13 +130,9 @@ export class SwapiService {
           previous: null,
           results: sortedResults,
         };
-      }),
-      delay(1000)
+      })
     );
   }
-
-  public isLoading: Signal<boolean> =
-    this.search.isLoading || this.resourceData.isLoading;
 
   private getIdFromUrl(url: string): string {
     let id = this.regexIdUrl.exec(url)![0];

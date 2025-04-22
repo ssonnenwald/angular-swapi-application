@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 178px);
+
+  table {
+    border-collapse: collapse;
+    height: 100%;
+
+    .property-row {
+      border-bottom: 1px solid gray;
+    }
+  }
+}

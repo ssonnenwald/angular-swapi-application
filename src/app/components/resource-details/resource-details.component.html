@@ -1,5 +1,18 @@
+@if(isLoading()) {
+<div class="spinner-overlay">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
+
 <mat-tab-group>
-  <mat-tab label="Properties"> <app-properties></app-properties> </mat-tab>
+  <mat-tab label="Properties">
+    <app-properties
+      [data]="(swapi.resourceData.value()?.results)![0]"
+      [resourceType]="swapi.resource()"
+    ></app-properties>
+  </mat-tab>
+
+  @if(displayFilmsTab()) {
   <mat-tab
     ><ng-template mat-tab-label>
       <mat-icon svgIcon="sw_film" class="icon-lightgray"></mat-icon>
@@ -7,6 +20,7 @@
     </ng-template>
     <app-resource-data></app-resource-data>
   </mat-tab>
+  } @if(displayPeopleTab()) {
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_people" class="icon-lightgray"></mat-icon>
@@ -14,6 +28,7 @@
     </ng-template>
     <app-resource-data></app-resource-data>
   </mat-tab>
+  } @if(displayPlanetsTab()) {
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_planet" class="icon-lightgray"></mat-icon>
@@ -21,6 +36,7 @@
     </ng-template>
     <app-resource-data></app-resource-data>
   </mat-tab>
+  } @if(displaySpeciesTab()) {
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_species" class="icon-lightgray"></mat-icon>
@@ -28,6 +44,7 @@
     </ng-template>
     <app-resource-data></app-resource-data>
   </mat-tab>
+  } @if(displayStarshipsTab()) {
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_starship" class="icon-lightgray"></mat-icon>
@@ -35,6 +52,7 @@
     </ng-template>
     <app-resource-data></app-resource-data>
   </mat-tab>
+  } @if(displayVehiclesTab()) {
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_vehicle" class="icon-lightgray"></mat-icon>
@@ -42,4 +60,6 @@
     </ng-template>
     <app-resource-data></app-resource-data>
   </mat-tab>
+  }
 </mat-tab-group>
+}

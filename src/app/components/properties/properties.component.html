@@ -1,1 +1,11 @@
-<p>properties works!</p>
+<table class="mt-4">
+  @for(prop of getDisplayProperties(resourceType(), data()); track $index) {
+  <tr class="property-row">
+    <td>
+      <strong>{{ prop.key }}</strong>
+    </td>
+    <td>&nbsp;&nbsp;</td>
+    <td>{{ prop.value }}</td>
+  </tr>
+  }
+</table>
