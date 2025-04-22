@@ -6,7 +6,7 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { delay, Observable, of, switchMap, tap } from 'rxjs';
+import { delay, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { SwapiResponse } from '../../models/swapi-response';
 import {
   SwapiResourceType,
@@ -27,7 +27,7 @@ export class SwapiService {
   public resource: WritableSignal<string> = signal('');
   public searchTerm: WritableSignal<string> = signal('');
 
-  public resourceId: WritableSignal<string> = signal('');
+  public resourceIds: WritableSignal<string[]> = signal([]);
 
   constructor() {}
 
@@ -100,19 +100,48 @@ export class SwapiService {
   public resourceData = rxResource({
     request: () => ({
       resource: this.resource(),
+      ids: this.resourceIds(),
     }),
     loader: ({ request }) =>
-      this.typedResourceLoader(request.resource as SwapiResourceType),
+      this.typedResourceLoader(
+        request.resource as SwapiResourceType,
+        request.ids
+      ),
   });
 
   private typedResourceLoader<K extends SwapiResourceType>(
-    resource: K
+    resource: K,
+    ids: string[]
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
-    const url = `${this.baseUrl}/${resource}/`;
-    return this.fetchAllPages(resource, url);
+    const requests = ids.map((id) =>
+      this.http
+        .get<SwapiResourceMap[K]>(`${this.baseUrl}/${resource}/${id}`)
+        .pipe(tap((item) => (item['id'] = this.getIdFromUrl(item['url']))))
+    );
+
+    return forkJoin(requests).pipe(
+      map((results) => {
+        const sortedResults = [...results].sort((a, b) => {
+          const keyA = Object.keys(a)[0];
+          const keyB = Object.keys(b)[0];
+          const valA = String((a as any)[keyA] ?? '').toLowerCase();
+          const valB = String((b as any)[keyB] ?? '').toLowerCase();
+          return valA.localeCompare(valB);
+        });
+
+        return {
+          count: sortedResults.length,
+          next: null,
+          previous: null,
+          results: sortedResults,
+        };
+      }),
+      delay(1000)
+    );
   }
 
-  public isLoading: Signal<boolean> = this.search.isLoading; //|| this.resourceData.isLoading;
+  public isLoading: Signal<boolean> =
+    this.search.isLoading || this.resourceData.isLoading;
 
   private getIdFromUrl(url: string): string {
     let id = this.regexIdUrl.exec(url)![0];
