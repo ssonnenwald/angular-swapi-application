@@ -1,11 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import {
-  inject,
-  Injectable,
-  Signal,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { delay, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { SwapiResponse } from '../../models/swapi-response';
 import {
@@ -14,6 +8,7 @@ import {
 } from '../../models/swapi-resource-map';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { SortKeyMap } from '../../models/sort-key-map';
+import { getIdFromUrl } from '../../shared/utils/url-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -21,8 +16,6 @@ import { SortKeyMap } from '../../models/sort-key-map';
 export class SwapiService {
   private baseUrl = 'https://swapi.py4e.com/api';
   private http = inject(HttpClient);
-
-  private regexIdUrl = new RegExp('[^/]+(?=/$|$)');
 
   public resource: WritableSignal<SwapiResourceType> =
     signal<SwapiResourceType>('people');
@@ -66,7 +59,7 @@ export class SwapiService {
         switchMap((response) => {
           const updatedResults = response.results.map((item) => ({
             ...item,
-            id: this.getIdFromUrl((item as any).url),
+            id: getIdFromUrl((item as any).url),
           }));
 
           const combined = [...acc, ...updatedResults];
@@ -101,7 +94,7 @@ export class SwapiService {
       ids: this.resourceIds(),
     }),
     loader: ({ request }) =>
-      this.typedResourceLoader(request.resource, request.ids).pipe(delay(1000)),
+      this.typedResourceLoader(request.resource, request.ids),
   });
 
   private typedResourceLoader<K extends SwapiResourceType>(
@@ -111,7 +104,7 @@ export class SwapiService {
     const requests = ids.map((id) =>
       this.http
         .get<SwapiResourceMap[K]>(`${this.baseUrl}/${resource}/${id}`)
-        .pipe(tap((item) => (item['id'] = this.getIdFromUrl(item['url']))))
+        .pipe(tap((item) => (item['id'] = getIdFromUrl(item['url']))))
     );
 
     return forkJoin(requests).pipe(
@@ -132,10 +125,5 @@ export class SwapiService {
         };
       })
     );
-  }
-
-  private getIdFromUrl(url: string): string {
-    let id = this.regexIdUrl.exec(url)![0];
-    return id;
   }
 }

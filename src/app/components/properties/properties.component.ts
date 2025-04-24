@@ -1,24 +1,76 @@
-import { Component, input, InputSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  InputSignal,
+  Signal,
+} from '@angular/core';
 import {
   SwapiResourceMap,
   SwapiResourceType,
 } from '../../models/swapi-resource-map';
 import { resourceDisplayOrder } from '../../models/swapi-display-order';
+import { getIdFromUrl, getResourceFromUrl } from '../../shared/utils/url-utils';
+import { RouterLink } from '@angular/router';
+import { SwapiService } from '../../services/swapi/swapi.service';
+import { hasNameProperty } from '../../shared/utils/object-utils';
 
 @Component({
   selector: 'app-properties',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './properties.component.html',
   styleUrl: './properties.component.scss',
+  providers: [SwapiService],
 })
 export class PropertiesComponent {
-  // public resource: InputSignal<string> = input<string>('');
-  // public resourceId: InputSignal<string> = input<string>('');
-  public data: InputSignal<any | undefined> = input<any | undefined>({});
-  public resourceType: InputSignal<SwapiResourceType> =
+  public readonly data: InputSignal<any | undefined> = input<any | undefined>(
+    {}
+  );
+  public readonly resourceType: InputSignal<SwapiResourceType> =
     input<SwapiResourceType>('people');
 
-  public constructor() {}
+  public swapi: SwapiService = inject(SwapiService);
+
+  public displayProperties: Signal<{ key: string; value: string }[]> = computed(
+    () => this.getDisplayProperties(this.resourceType(), this.data())
+  );
+
+  public homeworldUrlParts = computed(() => {
+    const homeworldUrl = this.data()?.homeworld;
+
+    if (!homeworldUrl) return undefined;
+
+    return {
+      resource: getResourceFromUrl(homeworldUrl) as SwapiResourceType,
+      id: getIdFromUrl(homeworldUrl),
+    };
+  });
+
+  public homeworldName: Signal<string | undefined> = computed(() => {
+    const resource = this.homeworldUrlParts()?.resource;
+    const results = this.swapi.resourceData.value()?.results;
+
+    if (!results?.length || !resource || !hasNameProperty(resource))
+      return undefined;
+
+    const first = results[0];
+    return typeof first === 'object' && 'name' in first
+      ? String(first.name)
+      : undefined;
+  });
+
+  public constructor() {
+    effect(() => {
+      const parts = this.homeworldUrlParts();
+
+      if (!parts) return;
+
+      this.swapi.resource.set(parts.resource);
+      this.swapi.resourceIds.set([parts.id]);
+    });
+  }
 
   private formatKey(key: string): string {
     return key
@@ -27,7 +79,7 @@ export class PropertiesComponent {
       .join(' ');
   }
 
-  public getDisplayProperties<T extends SwapiResourceType>(
+  private getDisplayProperties<T extends SwapiResourceType>(
     resourceType: T,
     obj: SwapiResourceMap[T]
   ): { key: string; value: string }[] {

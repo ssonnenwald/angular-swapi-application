@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
@@ -9,7 +10,12 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { MatTab, MatTabGroup, MatTabLabel } from '@angular/material/tabs';
+import {
+  MatTab,
+  MatTabContent,
+  MatTabGroup,
+  MatTabLabel,
+} from '@angular/material/tabs';
 import { PropertiesComponent } from '../properties/properties.component';
 import { ResourceDataComponent } from '../resource-data/resource-data.component';
 import { ActivatedRoute } from '@angular/router';
@@ -24,6 +30,7 @@ import { SwapiResourceType } from '../../models/swapi-resource-map';
     MatTabGroup,
     MatTab,
     MatTabLabel,
+    MatTabContent,
     MatIcon,
     PropertiesComponent,
     ResourceDataComponent,
@@ -53,6 +60,8 @@ export class ResourceDetailsComponent implements OnInit {
   public displaySpeciesTab: WritableSignal<boolean> = signal(false);
   public displayStarshipsTab: WritableSignal<boolean> = signal(false);
   public displayVehiclesTab: WritableSignal<boolean> = signal(false);
+
+  public selectedTabIndex = signal(0);
 
   public constructor() {
     effect(() => {
@@ -85,4 +94,21 @@ export class ResourceDetailsComponent implements OnInit {
     this.displayStarshipsTab.set('starships' in results[0]);
     this.displayVehiclesTab.set('vehicles' in results[0]);
   }
+
+  public visibleTabs = computed(() => {
+    const tabs = ['Properties'];
+
+    if (this.displayFilmsTab()) tabs.push('Films');
+    if (this.displayPeopleTab()) tabs.push('People');
+    if (this.displayPlanetsTab()) tabs.push('Planets');
+    if (this.displaySpeciesTab()) tabs.push('Species');
+    if (this.displayStarshipsTab()) tabs.push('Starships');
+    if (this.displayVehiclesTab()) tabs.push('Vehicles');
+
+    return tabs;
+  });
+
+  public selectedTabName = computed(
+    () => this.visibleTabs()[this.selectedTabIndex()]
+  );
 }

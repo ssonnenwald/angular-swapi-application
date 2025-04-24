@@ -4,12 +4,14 @@
 </div>
 } @else {
 
-<mat-tab-group>
+<mat-tab-group (selectedIndexChange)="selectedTabIndex.set($event)">
   <mat-tab label="Properties">
-    <app-properties
-      [data]="(swapi.resourceData.value()?.results)![0]"
-      [resourceType]="swapi.resource()"
-    ></app-properties>
+    <ng-template matTabContent>
+      <app-properties
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+      ></app-properties>
+    </ng-template>
   </mat-tab>
 
   @if(displayFilmsTab()) {
@@ -18,7 +20,13 @@
       <mat-icon svgIcon="sw_film" class="icon-lightgray"></mat-icon>
       Films
     </ng-template>
-    <app-resource-data></app-resource-data>
+    <ng-template matTabContent>
+      <app-resource-data
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+        [selectedTabName]="selectedTabName()"
+      ></app-resource-data>
+    </ng-template>
   </mat-tab>
   } @if(displayPeopleTab()) {
   <mat-tab
@@ -26,7 +34,13 @@
       ><mat-icon svgIcon="sw_people" class="icon-lightgray"></mat-icon>
       People
     </ng-template>
-    <app-resource-data></app-resource-data>
+    <ng-template matTabContent>
+      <app-resource-data
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+        [selectedTabName]="selectedTabName()"
+      ></app-resource-data>
+    </ng-template>
   </mat-tab>
   } @if(displayPlanetsTab()) {
   <mat-tab
@@ -34,7 +48,13 @@
       ><mat-icon svgIcon="sw_planet" class="icon-lightgray"></mat-icon>
       Planets
     </ng-template>
-    <app-resource-data></app-resource-data>
+    <ng-template matTabContent>
+      <app-resource-data
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+        [selectedTabName]="selectedTabName()"
+      ></app-resource-data>
+    </ng-template>
   </mat-tab>
   } @if(displaySpeciesTab()) {
   <mat-tab
@@ -42,7 +62,13 @@
       ><mat-icon svgIcon="sw_species" class="icon-lightgray"></mat-icon>
       Species
     </ng-template>
-    <app-resource-data></app-resource-data>
+    <ng-template matTabContent>
+      <app-resource-data
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+        [selectedTabName]="selectedTabName()"
+      ></app-resource-data>
+    </ng-template>
   </mat-tab>
   } @if(displayStarshipsTab()) {
   <mat-tab
@@ -50,7 +76,13 @@
       ><mat-icon svgIcon="sw_starship" class="icon-lightgray"></mat-icon>
       Starships
     </ng-template>
-    <app-resource-data></app-resource-data>
+    <ng-template matTabContent>
+      <app-resource-data
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+        [selectedTabName]="selectedTabName()"
+      ></app-resource-data>
+    </ng-template>
   </mat-tab>
   } @if(displayVehiclesTab()) {
   <mat-tab
@@ -58,7 +90,13 @@
       ><mat-icon svgIcon="sw_vehicle" class="icon-lightgray"></mat-icon>
       Vehicles
     </ng-template>
-    <app-resource-data></app-resource-data>
+    <ng-template matTabContent>
+      <app-resource-data
+        [data]="(swapi.resourceData.value()?.results)![0]"
+        [resourceType]="swapi.resource()"
+        [selectedTabName]="selectedTabName()"
+      ></app-resource-data>
+    </ng-template>
   </mat-tab>
   }
 </mat-tab-group>

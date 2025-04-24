@@ -3,12 +3,39 @@
   flex-direction: column;
   height: calc(100vh - 178px);
 
-  table {
-    border-collapse: collapse;
+  .properties-container {
     height: 100%;
+    margin-top: 16px;
 
-    .property-row {
-      border-bottom: 1px solid gray;
+    .properties-content {
+      display: flex;
+      flex-direction: row;
+      border-bottom: 1px solid lightgray;
+      padding-top: 16px;
+      padding-bottom: 16px;
+
+      .property-key {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 10%;
+      }
+
+      .property-value {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+        width: 90%;
+
+        .link-text {
+          text-decoration: none;
+          color: #e70263;
+        }
+      }
     }
   }
 }
