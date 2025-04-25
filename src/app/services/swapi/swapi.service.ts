@@ -117,7 +117,7 @@ export class SwapiService {
     resource: K,
     ids: string[]
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
-    const requests = ids.map((id) =>
+    const requests = ids.map((id: string) =>
       this.http
         .get<SwapiResourceMap[K]>(`${this.baseUrl}/${resource}/${id}`)
         .pipe(tap((item) => (item['id'] = getIdFromUrl(item['url']))))
