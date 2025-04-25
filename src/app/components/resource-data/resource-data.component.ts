@@ -137,10 +137,6 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
     return Array.isArray(raw) ? raw.map(getIdFromUrl) : [];
   });
 
-  private readonly relatedResourceData = computed(() => {
-    return this.swapi.resourceData.value();
-  });
-
   public ngAfterViewInit(): void {
     this.dataSource.sort = this.sort()!;
     this.dataSource.paginator = this.paginator()!;
