@@ -87,8 +87,7 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
   public isLoading: Signal<boolean> = this.swapi.resourceData.isLoading;
   public dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
-  private injector = inject(Injector); // get injector
-
+  private injector = inject(Injector);
   public constructor() {}
 
   public ngOnInit(): void {

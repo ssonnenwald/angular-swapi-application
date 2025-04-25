@@ -88,6 +88,12 @@ export class ResourceDetailsComponent implements OnInit {
       });
   }
 
+  /**
+   * Configures the tabs based on the resource data's properties.
+   * The tabs are determined by the presence of the resource type in the first
+   * element of the results array.
+   * @param results The results array from swapi.
+   */
   private configureTabs(results: any[]): void {
     this.displayFilmsTab.set('films' in results[0]);
     this.displayPeopleTab.set('people' in results[0]);

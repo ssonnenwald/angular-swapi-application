@@ -33,10 +33,21 @@ export class PropertiesComponent {
 
   public swapi: SwapiService = inject(SwapiService);
 
+  /**
+   * Computes the properties of the resource as an array of objects with `key` and `value` properties.
+   *
+   * @returns An array of objects containing the key and value of the properties of the resource.
+   */
   public displayProperties: Signal<{ key: string; value: string }[]> = computed(
     () => this.getDisplayProperties(this.resourceType(), this.data())
   );
 
+  /**
+   * Computes the homeworld URL parts from the component's data.
+   * If the homeworld URL is present, extracts the resource type and ID.
+   *
+   * @returns An object containing the resource type and ID if available, otherwise undefined.
+   */
   public homeworldUrlParts = computed(() => {
     const homeworldUrl = this.data()?.homeworld;
 
@@ -61,6 +72,12 @@ export class PropertiesComponent {
       : undefined;
   });
 
+  /**
+   * Initializes the PropertiesComponent by setting up a reactive effect.
+   * This effect updates the SwapiService's resource and resourceIds based
+   * on the homeworld URL parts extracted from the component's data.
+   */
+
   public constructor() {
     effect(() => {
       const parts = this.homeworldUrlParts();
@@ -72,6 +89,13 @@ export class PropertiesComponent {
     });
   }
 
+  /**
+   * Given a string, split it by underscores and capitalize the first letter of each segment, then join them back together.
+   * @example
+   * formatKey('foo_bar') // 'Foo Bar'
+   * @param key The string to format.
+   * @returns The formatted string.
+   */
   private formatKey(key: string): string {
     return key
       .split('_')
@@ -79,6 +103,12 @@ export class PropertiesComponent {
       .join(' ');
   }
 
+  /**
+   * Returns an array of { key: string, value: string } objects, where `key` is the formatted version of the original key and `value` is the formatted version of the value of the corresponding property on `obj`.
+   * @param resourceType The type of the resource.
+   * @param obj The object to extract properties from.
+   * @returns An array of { key: string, value: string } objects.
+   */
   private getDisplayProperties<T extends SwapiResourceType>(
     resourceType: T,
     obj: SwapiResourceMap[T]

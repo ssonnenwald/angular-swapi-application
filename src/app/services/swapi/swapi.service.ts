@@ -40,6 +40,13 @@ export class SwapiService {
       this.typedLoader(request.resource, request.searchTerm),
   });
 
+  /**
+   * Performs a search for a given resource type and search term.
+   * If the search term is empty, fetches all resources of the given type.
+   * @param resource The resource type to fetch.
+   * @param searchTerm The search term to use.
+   * @returns An observable that emits the search result.
+   */
   private typedLoader<K extends SwapiResourceType>(
     resource: K,
     searchTerm: string
@@ -48,6 +55,14 @@ export class SwapiService {
     return this.fetchAllPages(resource, url).pipe(delay(1000));
   }
 
+  /**
+   * Recursively fetches all pages of a resource from the SWAPI API until there are no more pages.
+   * The results are combined into a single array of objects, which are then sorted by the appropriate
+   * key for the given resource type.
+   * @param resource The resource type to fetch.
+   * @param url The initial URL to fetch. This should be the base URL for the resource with a query parameter for the search term.
+   * @returns An observable that emits a single SwapiResponse object, which contains the combined results and information about the total number of results.
+   */
   private fetchAllPages<K extends SwapiResourceType>(
     resource: K,
     url: string
@@ -113,6 +128,16 @@ export class SwapiService {
       this.typedResourceLoader(request.resource, request.ids),
   });
 
+  /**
+   * Fetches multiple resources of a given type by their IDs.
+   *
+   * The result is an observable that emits a {@link SwapiResponse} with the
+   * `results` property containing the sorted array of resources.
+   * The resources are sorted by the first property key of the first resource.
+   * @param resource The resource type to fetch.
+   * @param ids The IDs of the resources to fetch.
+   * @returns An observable that emits the search result.
+   */
   private typedResourceLoader<K extends SwapiResourceType>(
     resource: K,
     ids: string[]
