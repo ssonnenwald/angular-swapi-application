@@ -125,12 +125,6 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
       });
     });
 
-    // Load column config for the selected resource
-    this.columnDefs.set(
-      SwapiColumnConfigs[this.selectedTabName().toLowerCase()]
-    );
-    this.displayedColumns.set(this.columnDefs().map((c) => c.columnDef));
-
     //console.log('Selected Tab Name: ', this.selectedTabName());
     //console.log(
     //  'Raw tab data:',
@@ -138,12 +132,12 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
     //);
   }
 
-  public readonly relatedIds: Signal<string[]> = computed(() => {
+  private readonly relatedIds: Signal<string[]> = computed(() => {
     const raw = this.data()?.[this.selectedTabName().toLowerCase()];
     return Array.isArray(raw) ? raw.map(getIdFromUrl) : [];
   });
 
-  public readonly relatedResourceData = computed(() => {
+  private readonly relatedResourceData = computed(() => {
     return this.swapi.resourceData.value();
   });
 
