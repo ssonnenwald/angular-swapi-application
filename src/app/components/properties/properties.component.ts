@@ -50,7 +50,7 @@ export class PropertiesComponent {
 
   public homeworldName: Signal<string | undefined> = computed(() => {
     const resource = this.homeworldUrlParts()?.resource;
-    const results = this.swapi.resourceData.value()?.results;
+    const results = this.swapi.typedResourceData()?.results;
 
     if (!results?.length || !resource || !hasNameProperty(resource))
       return undefined;

@@ -1,5 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, WritableSignal } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injectable,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { delay, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { SwapiResponse } from '../../models/swapi-response';
 import {
@@ -88,6 +94,16 @@ export class SwapiService {
     return collectPages(url);
   }
 
+  public typedResourceData = computed(() => {
+    const resource = this.resource();
+    const data = this.resourceData.value();
+
+    if (!data) return null;
+
+    type T = SwapiResourceMap[typeof resource];
+    return data as SwapiResponse<T>;
+  });
+
   public resourceData = rxResource({
     request: () => ({
       resource: this.resource(),
@@ -126,4 +142,32 @@ export class SwapiService {
       })
     );
   }
+
+  public readonly resourceCounts = computed(() => {
+    const data = this.typedResourceData();
+    const first = data?.results?.[0];
+
+    if (!first) return {};
+
+    const keys = [
+      'films',
+      'people',
+      'planets',
+      'species',
+      'starships',
+      'vehicles',
+    ] as const;
+
+    const result: Record<string, number> = {};
+    const typed = first as unknown as Record<string, unknown>;
+
+    for (const key of keys) {
+      const value = typed[key];
+      if (Array.isArray(value)) {
+        result[key] = value.length;
+      }
+    }
+
+    return result;
+  });
 }

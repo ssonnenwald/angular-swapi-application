@@ -67,7 +67,7 @@ export class ResourceDetailsComponent implements OnInit {
 
   public constructor() {
     effect(() => {
-      const data = this.swapi.resourceData.value();
+      const data = this.swapi.typedResourceData();
       if (data?.results) {
         this.configureTabs(data.results);
       }
@@ -113,24 +113,4 @@ export class ResourceDetailsComponent implements OnInit {
   public selectedTabName = computed(
     () => this.visibleTabs()[this.selectedTabIndex()]
   );
-
-  public resourceCounts = computed(() => {
-    const data = this.swapi.resourceData.value();
-    const result = data?.results?.[0];
-    if (!result || typeof result !== 'object') return {};
-
-    const safeResult = result as unknown as Record<string, unknown>;
-
-    const count = (key: string) =>
-      Array.isArray(safeResult[key]) ? (safeResult[key] as any[]).length : 0;
-
-    return {
-      films: count('films'),
-      people: count('people'),
-      planets: count('planets'),
-      species: count('species'),
-      starships: count('starships'),
-      vehicles: count('vehicles'),
-    };
-  });
 }

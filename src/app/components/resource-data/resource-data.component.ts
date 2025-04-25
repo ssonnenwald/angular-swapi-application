@@ -117,7 +117,7 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
       });
 
       effect(() => {
-        const results = this.swapi.resourceData.value()?.results ?? [];
+        const results = this.swapi.typedResourceData()?.results ?? [];
 
         //console.log('✅ Resource Data Results:', results);
 
