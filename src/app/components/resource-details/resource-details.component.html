@@ -18,7 +18,12 @@
   <mat-tab
     ><ng-template mat-tab-label>
       <mat-icon svgIcon="sw_film" class="icon-lightgray"></mat-icon>
-      Films
+      <span
+        [matBadge]="resourceCounts().films"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        >Films</span
+      >
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
@@ -32,7 +37,12 @@
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_people" class="icon-lightgray"></mat-icon>
-      People
+      <span
+        [matBadge]="resourceCounts().people"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        >People</span
+      >
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
@@ -46,7 +56,12 @@
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_planet" class="icon-lightgray"></mat-icon>
-      Planets
+      <span
+        [matBadge]="resourceCounts().planets"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        >Planets</span
+      >
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
@@ -60,7 +75,12 @@
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_species" class="icon-lightgray"></mat-icon>
-      Species
+      <span
+        [matBadge]="resourceCounts().species"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        >Species</span
+      >
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
@@ -74,7 +94,12 @@
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_starship" class="icon-lightgray"></mat-icon>
-      Starships
+      <span
+        [matBadge]="resourceCounts().starships"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        >Starships</span
+      >
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
@@ -88,7 +113,12 @@
   <mat-tab
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_vehicle" class="icon-lightgray"></mat-icon>
-      Vehicles
+      <span
+        [matBadge]="resourceCounts().vehicles"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        >Vehicles</span
+      >
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data

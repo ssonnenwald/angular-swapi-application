@@ -23,6 +23,7 @@ import { SwapiService } from '../../services/swapi/swapi.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SwapiResourceType } from '../../models/swapi-resource-map';
+import { MatBadge } from '@angular/material/badge';
 
 @Component({
   selector: 'app-resource-details',
@@ -35,6 +36,7 @@ import { SwapiResourceType } from '../../models/swapi-resource-map';
     PropertiesComponent,
     ResourceDataComponent,
     MatProgressSpinner,
+    MatBadge,
   ],
   templateUrl: './resource-details.component.html',
   styleUrl: './resource-details.component.scss',
@@ -111,4 +113,24 @@ export class ResourceDetailsComponent implements OnInit {
   public selectedTabName = computed(
     () => this.visibleTabs()[this.selectedTabIndex()]
   );
+
+  public resourceCounts = computed(() => {
+    const data = this.swapi.resourceData.value();
+    const result = data?.results?.[0];
+    if (!result || typeof result !== 'object') return {};
+
+    const safeResult = result as unknown as Record<string, unknown>;
+
+    const count = (key: string) =>
+      Array.isArray(safeResult[key]) ? (safeResult[key] as any[]).length : 0;
+
+    return {
+      films: count('films'),
+      people: count('people'),
+      planets: count('planets'),
+      species: count('species'),
+      starships: count('starships'),
+      vehicles: count('vehicles'),
+    };
+  });
 }

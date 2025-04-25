@@ -12,6 +12,13 @@
       active-focus-indicator-color: #e70263,
     )
   );
+
+  @include mat.badge-overrides(
+    (
+      background-color: #a01ff3,
+      text-color: white,
+    )
+  );
 }
 
 .icon-lightgray {
