@@ -9,34 +9,28 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { MatIcon } from '@angular/material/icon';
-import {
-  MatTab,
-  MatTabContent,
-  MatTabGroup,
-  MatTabLabel,
-} from '@angular/material/tabs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
 import { PropertiesComponent } from '../properties/properties.component';
 import { ResourceDataComponent } from '../resource-data/resource-data.component';
 import { ActivatedRoute } from '@angular/router';
 import { SwapiService } from '../../services/swapi/swapi.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SwapiResourceType } from '../../models/swapi-resource-map';
-import { MatBadge } from '@angular/material/badge';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-resource-details',
   imports: [
-    MatTabGroup,
-    MatTab,
-    MatTabLabel,
-    MatTabContent,
-    MatIcon,
+    MatTableModule,
+    MatTabsModule,
+    MatIconModule,
     PropertiesComponent,
     ResourceDataComponent,
-    MatProgressSpinner,
-    MatBadge,
+    MatProgressSpinnerModule,
+    MatBadgeModule,
   ],
   templateUrl: './resource-details.component.html',
   styleUrl: './resource-details.component.scss',

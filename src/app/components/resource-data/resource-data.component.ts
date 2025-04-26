@@ -17,42 +17,20 @@ import {
 import { SwapiResourceType } from '../../models/swapi-resource-map';
 import { SwapiService } from '../../services/swapi/swapi.service';
 import { getIdFromUrl } from '../../shared/utils/url-utils';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatHeaderRowDef,
-  MatRow,
-  MatRowDef,
-  MatTable,
-  MatTableDataSource,
-} from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { TitleCasePipe } from '@angular/common';
 import { ColumnConfig, SwapiColumnConfigs } from '../../models/column-config';
-import { MatSort, MatSortHeader } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-resource-data',
   imports: [
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCell,
-    MatCellDef,
-    MatHeaderRow,
-    MatHeaderRowDef,
-    MatRowDef,
-    MatRow,
-    MatSort,
-    MatSortHeader,
-    MatPaginator,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
     RouterLink,
     MatProgressSpinner,
     TitleCasePipe,
