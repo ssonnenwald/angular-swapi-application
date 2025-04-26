@@ -1,6 +1,10 @@
 @use "@angular/material" as mat;
 
 :host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+
   @include mat.sidenav-overrides(
     (
       container-shape: 0 0 0 0,
@@ -9,10 +13,6 @@
       container-width: 165px,
     )
   );
-
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
 }
 
 mat-toolbar {
@@ -28,8 +28,12 @@ mat-toolbar {
     height: 64px;
   }
 
-  .logo {
-    cursor: pointer;
+  .logo-container {
+    margin-right: 0.5rem !important;
+
+    .logo {
+      cursor: pointer;
+    }
   }
 }
 

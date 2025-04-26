@@ -35,7 +35,7 @@ import { MatTableModule } from '@angular/material/table';
   templateUrl: './resource-details.component.html',
   styleUrl: './resource-details.component.scss',
 })
-export class ResourceDetailsComponent implements OnInit {
+export default class ResourceDetailsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private route: ActivatedRoute = inject(ActivatedRoute);
   public swapi: SwapiService = inject(SwapiService);

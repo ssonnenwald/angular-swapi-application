@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { SearchComponent } from './components/search/search.component';
-import { ResourceDetailsComponent } from './components/resource-details/resource-details.component';
 
 export const routes: Routes = [
   {
@@ -13,11 +11,16 @@ export const routes: Routes = [
     path: 'home',
     loadComponent: () => import('./components/home/home.component'),
   },
-  { title: 'Search', path: 'search/:resource', component: SearchComponent },
+  {
+    title: 'Search',
+    path: 'search/:resource',
+    loadComponent: () => import('./components/search/search.component'),
+  },
   {
     title: 'Details',
     path: 'details/:resource/:id',
-    component: ResourceDetailsComponent,
+    loadComponent: () =>
+      import('./components/resource-details/resource-details.component'),
   },
   { path: '**', redirectTo: '' }, // Redirect unmatched routes
 ];

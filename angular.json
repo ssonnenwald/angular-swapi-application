@@ -20,6 +20,7 @@
             "outputPath": "dist/angular-swapi-application",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "namedChunks": true,
             "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -30,7 +31,6 @@
               }
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap-utilities.min.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -101,7 +101,6 @@
               }
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap-utilities.min.css",
               "src/styles.scss"
             ],
             "scripts": []

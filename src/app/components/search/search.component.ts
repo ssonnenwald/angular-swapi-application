@@ -65,7 +65,7 @@ import { SwapiResourceType } from '../../models/swapi-resource-map';
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
 })
-export class SearchComponent implements OnInit, AfterViewInit {
+export default class SearchComponent implements OnInit, AfterViewInit {
   private paginator: Signal<MatPaginator | undefined> = viewChild<
     MatPaginator | undefined
   >(MatPaginator);
