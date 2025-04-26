@@ -11,7 +11,7 @@ This application is a web-based interface that allows users to search and explor
 - Sorting and pagination: Easily navigate and sort through large datasets
 - User-friendly interface: Built with Material Design components for a seamless user experience
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.6.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
 
 ## Development server
 
