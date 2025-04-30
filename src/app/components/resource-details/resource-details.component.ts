@@ -115,7 +115,12 @@ export default class ResourceDetailsComponent implements OnInit {
     () => this.visibleTabs()[this.selectedTabIndex()]
   );
 
-  public resourceType = computed(() => this.swapi.resource);
+  public resourceType = computed(() => {
+    if (this.swapi.resourceIds().length === 0)
+      return 'people' as SwapiResourceType;
+
+    return this.swapi.resource;
+  });
 
   public data = computed(() => (this.swapi.resourceData.value()?.results)![0]);
 
