@@ -1,4 +1,4 @@
-<h2 class="search-title">{{ swapi.resource() | titlecase }} Search</h2>
+<h2 class="search-title">{{ swapi.resource | titlecase }} Search</h2>
 
 <mat-form-field appearance="outline">
   <mat-label>Search term</mat-label>
@@ -24,7 +24,7 @@
       <mat-cell *matCellDef="let row">
         <a
           class="link-text"
-          [routerLink]="[`/details/`, swapi.resource(), row['id']]"
+          [routerLink]="[`/details/`, swapi.resource, row['id']]"
         >
           @if(column.header === 'Name') {
           {{ row["name"] }}

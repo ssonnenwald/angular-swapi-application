@@ -25,13 +25,11 @@ import { hasNameProperty } from '../../shared/utils/object-utils';
   providers: [SwapiService],
 })
 export class PropertiesComponent {
-  public readonly data: InputSignal<any | undefined> = input<any | undefined>(
-    {}
-  );
-  public readonly resourceType: InputSignal<SwapiResourceType> =
+  public data: InputSignal<any | undefined> = input<any | undefined>({});
+  public resourceType: InputSignal<SwapiResourceType> =
     input<SwapiResourceType>('people');
 
-  public swapi: SwapiService = inject(SwapiService);
+  private swapi: SwapiService = inject(SwapiService);
 
   /**
    * Computes the properties of the resource as an array of objects with `key` and `value` properties.
@@ -61,7 +59,7 @@ export class PropertiesComponent {
 
   public homeworldName: Signal<string | undefined> = computed(() => {
     const resource = this.homeworldUrlParts()?.resource;
-    const results = this.swapi.typedResourceData()?.results;
+    const results = this.swapi.resourceData.value()?.results;
 
     if (!results?.length || !resource || !hasNameProperty(resource))
       return undefined;
@@ -84,7 +82,7 @@ export class PropertiesComponent {
 
       if (!parts) return;
 
-      this.swapi.resource.set(parts.resource);
+      this.swapi.resource = parts.resource;
       this.swapi.resourceIds.set([parts.id]);
     });
   }

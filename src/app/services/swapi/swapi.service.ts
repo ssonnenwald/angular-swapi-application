@@ -23,9 +23,8 @@ export class SwapiService {
   private baseUrl = 'https://swapi.py4e.com/api';
   private http = inject(HttpClient);
 
-  public resource: WritableSignal<SwapiResourceType> =
-    signal<SwapiResourceType>('people');
-  public searchTerm: WritableSignal<string> = signal('');
+  public resource: SwapiResourceType = 'people' as SwapiResourceType;
+  public searchTerm: WritableSignal<string | null> = signal(null);
 
   public resourceIds: WritableSignal<string[]> = signal([]);
 
@@ -33,11 +32,13 @@ export class SwapiService {
 
   public search = rxResource({
     request: () => ({
-      resource: this.resource(),
+      resource: this.resource,
       searchTerm: this.searchTerm(),
     }),
     loader: ({ request }) =>
-      this.typedLoader(request.resource, request.searchTerm),
+      this.searchTerm() !== null
+        ? this.typedLoader(request.resource, request.searchTerm)
+        : of({ count: 0, next: null, previous: null, results: [] }),
   });
 
   /**
@@ -49,7 +50,7 @@ export class SwapiService {
    */
   private typedLoader<K extends SwapiResourceType>(
     resource: K,
-    searchTerm: string
+    searchTerm: string | null
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
     const url = `${this.baseUrl}/${resource}/?search=${searchTerm}`;
     return this.fetchAllPages(resource, url).pipe(delay(1000));
@@ -109,23 +110,30 @@ export class SwapiService {
     return collectPages(url);
   }
 
-  public typedResourceData = computed(() => {
-    const resource = this.resource();
-    const data = this.resourceData.value();
+  // public typedResourceData = computed(() => {
+  //   const resource = this.resource;
+  //   const data = this.resourceData.value();
 
-    if (!data) return null;
+  //   if (!data) return null;
 
-    type T = SwapiResourceMap[typeof resource];
-    return data as SwapiResponse<T>;
-  });
+  //   type T = SwapiResourceMap[typeof resource];
+  //   return data as SwapiResponse<T>;
+  // });
 
   public resourceData = rxResource({
-    request: () => ({
-      resource: this.resource(),
-      ids: this.resourceIds(),
-    }),
+    request: () => {
+      const ids: string[] = this.resourceIds() ?? [];
+      if (ids.length === 0) return null; // skip execution
+
+      return {
+        resource: this.resource,
+        ids: this.resourceIds(),
+      };
+    },
     loader: ({ request }) =>
-      this.typedResourceLoader(request.resource, request.ids),
+      request
+        ? this.typedResourceLoader(request!.resource, request!.ids)
+        : of(null),
   });
 
   /**
@@ -169,7 +177,7 @@ export class SwapiService {
   }
 
   public readonly resourceCounts = computed(() => {
-    const data = this.typedResourceData();
+    const data = this.resourceData.value();
     const first = data?.results?.[0];
 
     if (!first) return {};

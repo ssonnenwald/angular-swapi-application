@@ -34,11 +34,12 @@ import { MatTableModule } from '@angular/material/table';
   ],
   templateUrl: './resource-details.component.html',
   styleUrl: './resource-details.component.scss',
+  providers: [SwapiService],
 })
 export default class ResourceDetailsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private route: ActivatedRoute = inject(ActivatedRoute);
-  public swapi: SwapiService = inject(SwapiService);
+  private swapi: SwapiService = inject(SwapiService);
   public isLoading: Signal<boolean> = this.swapi.resourceData.isLoading;
 
   public resources: string[] = [
@@ -61,9 +62,9 @@ export default class ResourceDetailsComponent implements OnInit {
 
   public constructor() {
     effect(() => {
-      const data = this.swapi.typedResourceData();
-      if (data?.results) {
-        this.configureTabs(data.results);
+      const data = this.swapi.resourceData.value();
+      if (data?.results.length! > 0) {
+        this.configureTabs(data!.results);
       }
     });
   }
@@ -76,7 +77,7 @@ export default class ResourceDetailsComponent implements OnInit {
         const resourceId: string = params.get('id') || '';
 
         if (resource && resourceId && this.resources.includes(resource)) {
-          this.swapi.resource.set(resource as SwapiResourceType);
+          this.swapi.resource = resource as SwapiResourceType;
           this.swapi.resourceIds.set([resourceId]);
         }
       });
@@ -113,4 +114,10 @@ export default class ResourceDetailsComponent implements OnInit {
   public selectedTabName = computed(
     () => this.visibleTabs()[this.selectedTabIndex()]
   );
+
+  public resourceType = computed(() => this.swapi.resource);
+
+  public data = computed(() => (this.swapi.resourceData.value()?.results)![0]);
+
+  public resourceCounts = computed(() => this.swapi.resourceCounts());
 }

@@ -19,7 +19,7 @@ import { SwapiService } from '../../services/swapi/swapi.service';
 import { getIdFromUrl } from '../../shared/utils/url-utils';
 import { RouterLink } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { TitleCasePipe } from '@angular/common';
+import { LowerCasePipe, TitleCasePipe } from '@angular/common';
 import { ColumnConfig, SwapiColumnConfigs } from '../../models/column-config';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -34,17 +34,17 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
     RouterLink,
     MatProgressSpinner,
     TitleCasePipe,
+    LowerCasePipe,
   ],
   templateUrl: './resource-data.component.html',
   styleUrl: './resource-data.component.scss',
   providers: [SwapiService],
 })
 export class ResourceDataComponent implements OnInit, AfterViewInit {
-  public readonly data: InputSignal<any | undefined> = input<any | undefined>(
-    {}
-  );
-  public readonly resourceType: InputSignal<SwapiResourceType> =
-    input<SwapiResourceType>('people');
+  public data: InputSignal<any> = input.required<any>();
+  public resourceType: InputSignal<SwapiResourceType> =
+    input.required<SwapiResourceType>();
+  public selectedTabName: InputSignal<string> = input.required<string>();
 
   private paginator: Signal<MatPaginator | undefined> = viewChild<
     MatPaginator | undefined
@@ -54,9 +54,7 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
     MatSort
   );
 
-  public swapi = inject(SwapiService);
-
-  public readonly selectedTabName: InputSignal<string> = input<string>('');
+  private swapi = inject(SwapiService);
 
   public displayedColumns: WritableSignal<string[]> = signal<string[]>([]);
   public columnDefs: WritableSignal<ColumnConfig[]> = signal<ColumnConfig[]>(
@@ -66,6 +64,7 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
   public dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
   private injector = inject(Injector);
+
   public constructor() {}
 
   public ngOnInit(): void {
@@ -88,13 +87,15 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
         //console.log('🧠 Effect Triggered - IDs:', ids, 'Resource:', resource);
 
         if (ids.length > 0) {
-          this.swapi.resource.set(resource);
+          this.swapi.resource = resource;
           this.swapi.resourceIds.set(ids);
         }
       });
 
       effect(() => {
-        const results = this.swapi.typedResourceData()?.results ?? [];
+        if (!this.swapi.resourceData.value()) return;
+
+        const results = this.swapi.resourceData.value()?.results ?? [];
 
         //console.log('✅ Resource Data Results:', results);
 

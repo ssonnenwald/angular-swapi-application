@@ -64,6 +64,7 @@ import { SwapiResourceType } from '../../models/swapi-resource-map';
   ],
   templateUrl: './search.component.html',
   styleUrl: './search.component.scss',
+  providers: [SwapiService],
 })
 export default class SearchComponent implements OnInit, AfterViewInit {
   private paginator: Signal<MatPaginator | undefined> = viewChild<
@@ -106,12 +107,13 @@ export default class SearchComponent implements OnInit, AfterViewInit {
         const res = params.get('resource') as SwapiResourceType;
 
         if (res && this.resources.includes(res)) {
-          this.swapi.resource.set(res);
+          this.swapi.resource = res as SwapiResourceType;
 
           // Load column config for the selected resource
           this.columnDefs.set(SwapiColumnConfigs[res]);
           this.displayedColumns.set(this.columnDefs().map((c) => c.columnDef));
 
+          this.swapi.searchTerm.set(null);
           this.swapi.searchTerm.set('');
         }
       });

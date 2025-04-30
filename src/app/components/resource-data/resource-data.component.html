@@ -17,7 +17,7 @@
       <mat-cell *matCellDef="let row">
         <a
           class="link-text"
-          [routerLink]="[`/details/`, swapi.resource(), row['id']]"
+          [routerLink]="[`/details/`, resourceType() | lowercase , row['id']]"
         >
           @if(column.header === 'Name') {
           {{ row["name"] }}

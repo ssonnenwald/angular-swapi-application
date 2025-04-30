@@ -8,8 +8,8 @@
   <mat-tab label="Properties">
     <ng-template matTabContent>
       <app-properties
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
       ></app-properties>
     </ng-template>
   </mat-tab>
@@ -19,7 +19,7 @@
     ><ng-template mat-tab-label>
       <mat-icon svgIcon="sw_film" class="icon-lightgray"></mat-icon>
       <span
-        [matBadge]="swapi.resourceCounts()['films']"
+        [matBadge]="resourceCounts()['films']"
         matBadgeSize="large"
         matBadgeOverlap="false"
         >Films</span
@@ -27,8 +27,8 @@
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
         [selectedTabName]="selectedTabName()"
       ></app-resource-data>
     </ng-template>
@@ -38,7 +38,7 @@
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_people" class="icon-lightgray"></mat-icon>
       <span
-        [matBadge]="swapi.resourceCounts()['people']"
+        [matBadge]="resourceCounts()['people']"
         matBadgeSize="large"
         matBadgeOverlap="false"
         >People</span
@@ -46,8 +46,8 @@
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
         [selectedTabName]="selectedTabName()"
       ></app-resource-data>
     </ng-template>
@@ -57,7 +57,7 @@
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_planet" class="icon-lightgray"></mat-icon>
       <span
-        [matBadge]="swapi.resourceCounts()['planets']"
+        [matBadge]="resourceCounts()['planets']"
         matBadgeSize="large"
         matBadgeOverlap="false"
         >Planets</span
@@ -65,8 +65,8 @@
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
         [selectedTabName]="selectedTabName()"
       ></app-resource-data>
     </ng-template>
@@ -76,7 +76,7 @@
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_species" class="icon-lightgray"></mat-icon>
       <span
-        [matBadge]="swapi.resourceCounts()['species']"
+        [matBadge]="resourceCounts()['species']"
         matBadgeSize="large"
         matBadgeOverlap="false"
         >Species</span
@@ -84,8 +84,8 @@
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
         [selectedTabName]="selectedTabName()"
       ></app-resource-data>
     </ng-template>
@@ -95,7 +95,7 @@
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_starship" class="icon-lightgray"></mat-icon>
       <span
-        [matBadge]="swapi.resourceCounts()['starships']"
+        [matBadge]="resourceCounts()['starships']"
         matBadgeSize="large"
         matBadgeOverlap="false"
         >Starships</span
@@ -103,8 +103,8 @@
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
         [selectedTabName]="selectedTabName()"
       ></app-resource-data>
     </ng-template>
@@ -114,7 +114,7 @@
     ><ng-template mat-tab-label
       ><mat-icon svgIcon="sw_vehicle" class="icon-lightgray"></mat-icon>
       <span
-        [matBadge]="swapi.resourceCounts()['vehicles']"
+        [matBadge]="resourceCounts()['vehicles']"
         matBadgeSize="large"
         matBadgeOverlap="false"
         >Vehicles</span
@@ -122,8 +122,8 @@
     </ng-template>
     <ng-template matTabContent>
       <app-resource-data
-        [data]="(swapi.typedResourceData()?.results)![0]"
-        [resourceType]="swapi.resource()"
+        [data]="data()"
+        [resourceType]="resourceType()"
         [selectedTabName]="selectedTabName()"
       ></app-resource-data>
     </ng-template>

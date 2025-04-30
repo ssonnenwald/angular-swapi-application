@@ -6,9 +6,10 @@
     </div>
     <div class="property-value">
       @if(prop.key !== 'Homeworld') {
-      {{ prop.value }}
+      <span [attr.data-testid]="prop.key">{{ prop.value }}</span>
       } @else {
       <a
+        [attr.data-testid]="prop.key"
         class="link-text"
         [routerLink]="`/details/${ homeworldUrlParts()?.resource }/${ homeworldUrlParts()?.id }`"
         >{{ homeworldName() }}</a
