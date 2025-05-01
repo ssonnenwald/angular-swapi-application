@@ -31,14 +31,18 @@ export class SwapiService {
   constructor() {}
 
   public search = rxResource({
-    request: () => ({
-      resource: this.resource,
-      searchTerm: this.searchTerm(),
-    }),
+    request: () => {
+      if (this.searchTerm() === null) return null;
+
+      return {
+        resource: this.resource,
+        searchTerm: this.searchTerm(),
+      };
+    },
     loader: ({ request }) =>
-      this.searchTerm() !== null
+      request
         ? this.typedLoader(request.resource, request.searchTerm)
-        : of({ count: 0, next: null, previous: null, results: [] }),
+        : of(null),
   });
 
   /**
@@ -109,16 +113,6 @@ export class SwapiService {
 
     return collectPages(url);
   }
-
-  // public typedResourceData = computed(() => {
-  //   const resource = this.resource;
-  //   const data = this.resourceData.value();
-
-  //   if (!data) return null;
-
-  //   type T = SwapiResourceMap[typeof resource];
-  //   return data as SwapiResponse<T>;
-  // });
 
   public resourceData = rxResource({
     request: () => {

@@ -84,8 +84,6 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
         const resource =
           this.selectedTabName().toLowerCase() as SwapiResourceType;
 
-        //console.log('🧠 Effect Triggered - IDs:', ids, 'Resource:', resource);
-
         if (ids.length > 0) {
           this.swapi.resource = resource;
           this.swapi.resourceIds.set(ids);
@@ -97,17 +95,9 @@ export class ResourceDataComponent implements OnInit, AfterViewInit {
 
         const results = this.swapi.resourceData.value()?.results ?? [];
 
-        //console.log('✅ Resource Data Results:', results);
-
         this.dataSource.data = results;
       });
     });
-
-    //console.log('Selected Tab Name: ', this.selectedTabName());
-    //console.log(
-    //  'Raw tab data:',
-    //  this.data()?.[this.selectedTabName().toLowerCase()]
-    //);
   }
 
   private readonly relatedIds: Signal<string[]> = computed(() => {
