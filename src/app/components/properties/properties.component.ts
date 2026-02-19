@@ -37,7 +37,7 @@ export class PropertiesComponent {
    * @returns An array of objects containing the key and value of the properties of the resource.
    */
   public displayProperties: Signal<{ key: string; value: string }[]> = computed(
-    () => this.getDisplayProperties(this.resourceType(), this.data())
+    () => this.getDisplayProperties(this.resourceType(), this.data()),
   );
 
   /**
@@ -59,15 +59,16 @@ export class PropertiesComponent {
 
   public homeworldName: Signal<string | undefined> = computed(() => {
     const resource = this.homeworldUrlParts()?.resource;
-    const results = this.swapi.resourceData.value()?.results;
+    const results = (
+      this.swapi.resourceData.value() as { results?: unknown[] } | undefined
+    )?.results;
 
     if (!results?.length || !resource || !hasNameProperty(resource))
       return undefined;
 
     const first = results[0];
-    return typeof first === 'object' && 'name' in first
-      ? String(first.name)
-      : undefined;
+    if (!first || typeof first !== 'object') return undefined;
+    return 'name' in first ? String((first as any).name) : undefined;
   });
 
   /**
@@ -109,7 +110,7 @@ export class PropertiesComponent {
    */
   private getDisplayProperties<T extends SwapiResourceType>(
     resourceType: T,
-    obj: SwapiResourceMap[T]
+    obj: SwapiResourceMap[T],
   ): { key: string; value: string }[] {
     const orderedKeys = resourceDisplayOrder[resourceType];
     const dateFormatter = new Intl.DateTimeFormat('en-US', {

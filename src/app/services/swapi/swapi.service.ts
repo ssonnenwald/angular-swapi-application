@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import {
   computed,
+  effect,
   inject,
   Injectable,
   signal,
@@ -12,9 +13,9 @@ import {
   SwapiResourceType,
   SwapiResourceMap,
 } from '../../models/swapi-resource-map';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { SortKeyMap } from '../../models/sort-key-map';
 import { getIdFromUrl } from '../../shared/utils/url-utils';
+import { swapiResources } from '../../models/swapi-resources';
 
 @Injectable({
   providedIn: 'root',
@@ -23,27 +24,48 @@ export class SwapiService {
   private baseUrl = 'https://swapi.py4e.com/api';
   private http = inject(HttpClient);
 
-  public resource: SwapiResourceType = 'people' as SwapiResourceType;
+  private _resource = signal<SwapiResourceType>('people' as SwapiResourceType);
+  public get resource(): SwapiResourceType {
+    return this._resource();
+  }
+  public set resource(value: SwapiResourceType) {
+    this._resource.set(value);
+  }
   public searchTerm: WritableSignal<string | null> = signal(null);
 
   public resourceIds: WritableSignal<string[]> = signal([]);
 
-  constructor() {}
+  private _searchData = signal<SwapiResponse<
+    SwapiResourceMap[SwapiResourceType]
+  > | null>(null);
+  private _searchLoading = signal<boolean>(false);
+  public search = {
+    value: () => this._searchData(),
+    isLoading: this._searchLoading as import('@angular/core').Signal<boolean>,
+  };
 
-  public search = rxResource({
-    request: () => {
-      if (this.searchTerm() === null) return null;
+  constructor() {
+    effect(() => {
+      const term = this.searchTerm();
+      if (term === null) {
+        this._searchData.set(null);
+        this._searchLoading.set(false);
+        return;
+      }
 
-      return {
-        resource: this.resource,
-        searchTerm: this.searchTerm(),
+      this._searchLoading.set(true);
+      const sub = this.typedLoader(this.resource, term).subscribe({
+        next: (res) => this._searchData.set(res),
+        error: () => this._searchLoading.set(false),
+        complete: () => this._searchLoading.set(false),
+      });
+
+      return () => {
+        sub.unsubscribe();
+        this._searchLoading.set(false);
       };
-    },
-    loader: ({ request }) =>
-      request
-        ? this.typedLoader(request.resource, request.searchTerm)
-        : of(null),
-  });
+    });
+  }
 
   /**
    * Performs a search for a given resource type and search term.
@@ -54,9 +76,17 @@ export class SwapiService {
    */
   private typedLoader<K extends SwapiResourceType>(
     resource: K,
-    searchTerm: string | null
+    searchTerm: string | null,
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
-    const url = `${this.baseUrl}/${resource}/?search=${searchTerm}`;
+    // If searchTerm is an empty string, request the resource root (all items).
+    // Some SWAPI endpoints behave differently when given an empty `search` query,
+    // so avoid appending `?search=` when the term is falsy but not null.
+    const url =
+      searchTerm === '' || searchTerm === null
+        ? `${this.baseUrl}/${resource}/`
+        : `${this.baseUrl}/${resource}/?search=${encodeURIComponent(
+            searchTerm,
+          )}`;
     return this.fetchAllPages(resource, url).pipe(delay(1000));
   }
 
@@ -70,16 +100,16 @@ export class SwapiService {
    */
   private fetchAllPages<K extends SwapiResourceType>(
     resource: K,
-    url: string
+    url: string,
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
     const getPage = (
-      url: string
+      url: string,
     ): Observable<SwapiResponse<SwapiResourceMap[K]>> =>
       this.http.get<SwapiResponse<SwapiResourceMap[K]>>(url);
 
     const collectPages = (
       url: string,
-      acc: SwapiResourceMap[K][] = []
+      acc: SwapiResourceMap[K][] = [],
     ): Observable<SwapiResponse<SwapiResourceMap[K]>> => {
       return getPage(url).pipe(
         switchMap((response) => {
@@ -97,8 +127,8 @@ export class SwapiService {
             if (sortKey) {
               combined.sort((a, b) =>
                 String((a as any)[sortKey]).localeCompare(
-                  String((b as any)[sortKey])
-                )
+                  String((b as any)[sortKey]),
+                ),
               );
             }
 
@@ -107,28 +137,21 @@ export class SwapiService {
               results: combined,
             });
           }
-        })
+        }),
       );
     };
 
     return collectPages(url);
   }
 
-  public resourceData = rxResource({
-    request: () => {
-      const ids: string[] = this.resourceIds() ?? [];
-      if (ids.length === 0) return null; // skip execution
-
-      return {
-        resource: this.resource,
-        ids: this.resourceIds(),
-      };
-    },
-    loader: ({ request }) =>
-      request
-        ? this.typedResourceLoader(request!.resource, request!.ids)
-        : of(null),
-  });
+  private _resourceData = signal<SwapiResponse<
+    SwapiResourceMap[SwapiResourceType]
+  > | null>(null);
+  private _resourceLoading = signal<boolean>(false);
+  public resourceData = {
+    value: () => this._resourceData() ?? undefined,
+    isLoading: this._resourceLoading as import('@angular/core').Signal<boolean>,
+  };
 
   /**
    * Fetches multiple resources of a given type by their IDs.
@@ -142,12 +165,12 @@ export class SwapiService {
    */
   private typedResourceLoader<K extends SwapiResourceType>(
     resource: K,
-    ids: string[]
+    ids: string[],
   ): Observable<SwapiResponse<SwapiResourceMap[K]>> {
     const requests = ids.map((id: string) =>
       this.http
         .get<SwapiResourceMap[K]>(`${this.baseUrl}/${resource}/${id}`)
-        .pipe(tap((item) => (item['id'] = getIdFromUrl(item['url']))))
+        .pipe(tap((item) => (item['id'] = getIdFromUrl(item['url'])))),
     );
 
     return forkJoin(requests).pipe(
@@ -166,7 +189,7 @@ export class SwapiService {
           previous: null,
           results: sortedResults,
         };
-      })
+      }),
     );
   }
 
@@ -176,14 +199,7 @@ export class SwapiService {
 
     if (!first) return {};
 
-    const keys = [
-      'films',
-      'people',
-      'planets',
-      'species',
-      'starships',
-      'vehicles',
-    ] as const;
+    const keys = swapiResources;
 
     const result: Record<string, number> = {};
     const typed = first as unknown as Record<string, unknown>;
