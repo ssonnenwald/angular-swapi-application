@@ -47,14 +47,14 @@ export class SwapiService {
   constructor() {
     effect(() => {
       const term = this.searchTerm();
-      if (term === null) {
-        this._searchData.set(null);
-        this._searchLoading.set(false);
-        return;
-      }
-
+      // When `searchTerm` is `null` we treat that as a request to load the
+      // full resource (all items). This keeps behavior consistent for both
+      // initial page load and when the user clears the search input.
       this._searchLoading.set(true);
-      const sub = this.typedLoader(this.resource, term).subscribe({
+      const sub = this.typedLoader(
+        this.resource,
+        term === null ? '' : term,
+      ).subscribe({
         next: (res) => this._searchData.set(res),
         error: () => this._searchLoading.set(false),
         complete: () => this._searchLoading.set(false),
@@ -65,6 +65,26 @@ export class SwapiService {
         this._searchLoading.set(false);
       };
     });
+  }
+
+  /**
+   * Load all items for the current resource and set the internal search data.
+   * This method does not update `searchTerm` so callers can fetch the full
+   * resource without affecting the current query state.
+   */
+  public loadAll(): void {
+    // Cancel any existing search subscription handled by the effect above by
+    // setting loading and subscribing directly here. The effect also cleans
+    // up its subscription when `searchTerm` changes.
+    this._searchLoading.set(true);
+    const sub = this.typedLoader(this.resource, '').subscribe({
+      next: (res) => this._searchData.set(res),
+      error: () => this._searchLoading.set(false),
+      complete: () => this._searchLoading.set(false),
+    });
+
+    // Leave the subscription to complete naturally; no immediate
+    // auto-unsubscribe here (it was cancelling the request).
   }
 
   /**
@@ -152,6 +172,30 @@ export class SwapiService {
     value: () => this._resourceData() ?? undefined,
     isLoading: this._resourceLoading as import('@angular/core').Signal<boolean>,
   };
+
+  // Keep a reactive effect to update `resourceData` when `resourceIds` changes.
+  // Setting `resourceIds` to an array of ids will fetch those individual
+  // resources and populate `_resourceData` with the results.
+  private _initResourceEffect = effect(() => {
+    const ids = this.resourceIds();
+    if (!ids || ids.length === 0) {
+      this._resourceData.set(null);
+      this._resourceLoading.set(false);
+      return;
+    }
+
+    this._resourceLoading.set(true);
+    const sub = this.typedResourceLoader(this.resource, ids).subscribe({
+      next: (res) => this._resourceData.set(res),
+      error: () => this._resourceLoading.set(false),
+      complete: () => this._resourceLoading.set(false),
+    });
+
+    return () => {
+      sub.unsubscribe();
+      this._resourceLoading.set(false);
+    };
+  });
 
   /**
    * Fetches multiple resources of a given type by their IDs.

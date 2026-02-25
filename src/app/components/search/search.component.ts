@@ -47,7 +47,7 @@ export default class SearchComponent implements OnInit, AfterViewInit {
     MatPaginator | undefined
   >(MatPaginator);
   private sort: Signal<MatSort | undefined> = viewChild<MatSort | undefined>(
-    MatSort
+    MatSort,
   );
   private destroyRef = inject(DestroyRef);
   private route: ActivatedRoute = inject(ActivatedRoute);
@@ -56,20 +56,41 @@ export default class SearchComponent implements OnInit, AfterViewInit {
 
   public dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
   public resource: string = '';
-  public searchTerm: WritableSignal<string | null> = signal('');
+  public searchTerm: WritableSignal<string | null> = signal<string | null>(
+    null,
+  );
 
   public displayedColumns: WritableSignal<string[]> = signal<string[]>([]);
   public columnDefs: WritableSignal<ColumnConfig[]> = signal<ColumnConfig[]>(
-    []
+    [],
   );
+  private _searchDebounceTimer: any;
 
   public constructor() {
     effect(() => {
       this.dataSource.data = this.swapi.search.value()?.results ?? [];
     });
 
+    // Debounce updates to the service `searchTerm` to avoid racing full-load
+    // requests when the user types quickly.
     effect(() => {
-      this.swapi.searchTerm.set(this.searchTerm());
+      const term = this.searchTerm();
+
+      if (this._searchDebounceTimer) {
+        clearTimeout(this._searchDebounceTimer);
+      }
+
+      this._searchDebounceTimer = setTimeout(() => {
+        this.swapi.searchTerm.set(term);
+        this._searchDebounceTimer = undefined;
+      }, 300);
+
+      return () => {
+        if (this._searchDebounceTimer) {
+          clearTimeout(this._searchDebounceTimer);
+          this._searchDebounceTimer = undefined;
+        }
+      };
     });
   }
 
@@ -87,7 +108,13 @@ export default class SearchComponent implements OnInit, AfterViewInit {
           this.columnDefs.set(SwapiColumnConfigs[res]);
           this.displayedColumns.set(this.columnDefs().map((c) => c.columnDef));
 
-          this.swapi.searchTerm.set('');
+          // Clear the table immediately to avoid showing stale rows from the
+          // previous resource while the new resource loads.
+          this.dataSource.data = [];
+
+          // Reset the local input state. The service watches `searchTerm` and
+          // will load the full resource when it becomes `null`.
+          this.searchTerm.set(null);
         }
       });
   }

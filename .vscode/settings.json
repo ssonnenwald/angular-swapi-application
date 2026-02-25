@@ -100,5 +100,6 @@
   "terminal.integrated.fontLigatures.enabled": true,
   "search.exclude": {
     "**/docs": true
-  }
+  },
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true
 }
